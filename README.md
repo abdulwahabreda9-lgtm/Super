@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>نظام الباقات المتكامل - الإصدار المطور</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+:root {
+    --bg-body: #f3f4f6;
+    --bg-card: white;
+    --text-primary: #1e293b;
+    --text-secondary: #4b5563;
+    --border-color: #e2e8f0;
+    --shadow: 0 2px 8px rgba(0,0,0,0.05);
+    --shadow-hover: 0 12px 20px rgba(0,0,0,0.1);
+    --header-bg: linear-gradient(135deg, #0f172a, #1e293b);
+    --header-text: white;
+    --input-bg: white;
+    --input-border: #cbd5e1;
+    --button-bg: #1e293b;
+    --button-hover: #0f172a;
+    --bottom-nav-bg: rgba(255,255,255,0.95);
+    --bottom-nav-text: #64748b;
+    --bottom-nav-active: #2563eb;
+    --bottom-nav-active-bg: #eef2ff;
+    --warning-bg: #fee2e2;
+    --warning-text: #991b1b;
+    --success-bg: #10b981;
+    --info-bg: #eef2ff;
+    --debt-highlight: #dc2626;
+    --stat-total: #2563eb;
+    --stat-month: #16a34a;
+    --stat-day: #d97706;
+    --stat-stock: #8b5cf6;
+    --stat-debt: #dc2626;
+    --stat-expense: #ef4444;
+}
+body.dark {
+    --bg-body: #0f172a;
+    --bg-card: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --border-color: #334155;
+    --input-bg: #334155;
+    --input-border: #475569;
+    --button-bg: #3b82f6;
+    --button-hover: #2563eb;
+    --bottom-nav-bg: #1e293b;
+    --bottom-nav-text: #94a3b8;
+    --bottom-nav-active: #60a5fa;
+    --bottom-nav-active-bg: #334155;
+    --warning-bg: #7f1a1a;
+    --warning-text: #fecaca;
+    --info-bg: #1e293b;
+    --debt-highlight: #f87171;
+}
+* { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; transition: background-color 0.3s ease, color 0.2s ease; }
+body { background: var(--bg-body); padding-bottom: 80px; color: var(--text-primary); }
+h2 { background: var(--header-bg); color: var(--header-text); text-align: center; padding: 20px; margin: 0; font-size: 1.6rem; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: center; gap: 12px; }
+h2 i { font-size: 1.8rem; }
+.theme-toggle, .settings-icon, .logout-btn { position: absolute; left: 20px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; color: white; backdrop-filter: blur(4px); }
+.theme-toggle:hover, .settings-icon:hover, .logout-btn:hover { background: rgba(255,255,255,0.3); }
+.settings-icon { left: 70px; }
+.logout-btn { left: 120px; background: rgba(239,68,68,0.7); }
+.logout-btn:hover { background: #ef4444; }
+.stats-container { display: flex; flex-wrap: wrap; gap: 16px; padding: 16px; justify-content: center; }
+.stat-card { background: var(--bg-card); border-radius: 24px; padding: 20px 16px; flex: 1; min-width: 150px; text-align: center; box-shadow: var(--shadow); border: 1px solid var(--border-color); transition: transform 0.2s; cursor: pointer; }
+.stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+.stat-card h3 { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px; }
+.stat-card .value { font-size: 1.6rem; font-weight: bold; }
+.stat-card.total .value { color: var(--stat-total); }
+.stat-card.month .value { color: var(--stat-month); }
+.stat-card.day .value { color: var(--stat-day); }
+.stat-card.stock .value { color: var(--stat-stock); }
+.stat-card.clients .value { color: var(--stat-stock); }
+.stat-card.debt .value { color: var(--stat-debt); }
+.stat-card.expense .value { color: var(--stat-expense); }
+.stat-card.net .value { color: #10b981; }
+.card { background: var(--bg-card); margin: 12px; padding: 18px; border-radius: 24px; box-shadow: var(--shadow); border: 1px solid var(--border-color); }
+button, input, select { width: 100%; padding: 12px 16px; margin: 8px 0; border-radius: 40px; border: 1px solid var(--input-border); font-size: 1rem; background: var(--input-bg); color: var(--text-primary); }
+button { background: var(--button-bg); color: white; font-weight: bold; cursor: pointer; border: none; }
+button:active { transform: scale(0.97); }
+.bottom-nav { position: fixed; bottom: 0; width: 100%; display: flex; background: var(--bottom-nav-bg); box-shadow: 0 -4px 20px rgba(0,0,0,0.1); z-index: 20; border-top: 1px solid var(--border-color); backdrop-filter: blur(10px); }
+.bottom-nav button { flex: 1; border-radius: 0; background: transparent; color: var(--bottom-nav-text); font-weight: 600; margin: 0; padding: 12px 0; border: none; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.bottom-nav button i { font-size: 1.3rem; }
+.bottom-nav button.active { color: var(--bottom-nav-active); background: var(--bottom-nav-active-bg); border-top: 2px solid var(--bottom-nav-active); }
+.hidden { display: none; }
+.search-container { position: relative; }
+.suggestions-list { position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; max-height: 200px; overflow-y: auto; z-index: 100; box-shadow: var(--shadow); display: none; }
+.suggestions-list div { padding: 10px 16px; cursor: pointer; border-bottom: 1px solid var(--border-color); }
+.suggestions-list div:hover { background: var(--bottom-nav-active-bg); }
+.debt-warning { background: var(--warning-bg); border-right: 4px solid var(--debt-highlight); margin-top: 8px; padding: 8px; border-radius: 12px; font-size: 0.85rem; color: var(--warning-text); }
+.stock-control { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.stock-control input { flex: 2; margin: 0; }
+.stock-control button { flex: 1; margin: 0; }
+.edit-btn, .delete-sale-btn, .payment-btn, .refund-btn, .delete-expense-btn { background: #f59e0b; width: auto; padding: 4px 12px; font-size: 0.8rem; margin: 0 4px; }
+.delete-sale-btn, .delete-expense-btn { background: #ef4444; }
+.payment-btn { background: #10b981; }
+.refund-btn { background: #ef4444; }
+.modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal-content { background: var(--bg-card); padding: 24px; border-radius: 24px; width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto; }
+.points-badge { background: #fbbf24; color: #1e293b; border-radius: 20px; padding: 2px 8px; font-size: 0.8rem; font-weight: bold; }
+.loyalty-checkbox { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+.loyalty-checkbox label { margin: 0; }
+.client-search-row { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; }
+.client-search-row input { flex: 3; margin: 0; }
+.client-search-row button { flex: 1; margin: 0; }
+.sales-table { width: 100%; border-collapse: collapse; }
+.sales-table th, .sales-table td { padding: 8px; text-align: center; border-bottom: 1px solid var(--border-color); }
+.expense-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.expense-row input, .expense-row select { flex: 1; margin: 0; }
+.bulk-discount-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+.bulk-discount-row input { flex: 1; margin: 0; }
+.backup-buttons { display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+.backup-buttons button { flex: 1; margin: 0; }
+.login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+}
+.login-card {
+    background: var(--bg-card);
+    padding: 32px;
+    border-radius: 32px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: var(--shadow-hover);
+}
+.login-card h3 { margin-bottom: 24px; }
+.login-card input { margin-bottom: 16px; }
+.login-card button { margin-top: 8px; }
+.filter-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+.filter-row button { flex: 1; margin: 0; font-size: 0.8rem; padding: 8px 4px; }
+.date-range { display: flex; gap: 8px; margin-top: 8px; }
+.date-range input { margin: 0; }
+.invoice-stats { display: flex; gap: 12px; justify-content: space-around; margin: 12px 0; font-weight: bold; }
+@media (min-width: 768px) {
+    .stats-container { max-width: 1200px; margin: 0 auto; }
+    .card { max-width: 1200px; margin: 16px auto; }
+    .sales-table { display: table; }
+}
+</style>
+</head>
+<body>
+
+<div id="appContainer" style="display: none;">
+    <h2>
+        <i class="fas fa-boxes"></i> نظام الباقات المتكامل
+        <button id="themeToggle" class="theme-toggle"><i class="fas fa-moon"></i></button>
+        <button id="settingsBtn" class="settings-icon"><i class="fas fa-cog"></i></button>
+        <button id="logoutBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i></button>
+    </h2>
+
+    <div id="dashboard">
+        <div class="stats-container">
+            <div class="stat-card total" onclick="showMonthlySalesModal()"><h3><i class="fas fa-chart-line"></i> إجمالي المبيعات</h3><div class="value" id="totalSales">0</div></div>
+            <div class="stat-card month"><h3><i class="fas fa-calendar-alt"></i> الربح الشهري</h3><div class="value" id="monthProfit">0</div></div>
+            <div class="stat-card day" onclick="showDailyProfitsModal()"><h3><i class="fas fa-sun"></i> الربح اليومي</h3><div class="value" id="dayProfit">0</div></div>
+            <div class="stat-card expense"><h3><i class="fas fa-money-bill-wave"></i> إجمالي المصروفات</h3><div class="value" id="totalExpenses">0</div></div>
+            <div class="stat-card net"><h3><i class="fas fa-chart-simple"></i> صافي الربح</h3><div class="value" id="netProfit">0</div></div>
+            <div class="stat-card stock"><h3><i class="fas fa-warehouse"></i> رصيد سوبر باقه</h3><div class="value" id="stockCount">0</div></div>
+            <div class="stat-card clients"><h3><i class="fas fa-users"></i> عدد العملاء</h3><div class="value" id="clientsCount">0</div></div>
+            <div class="stat-card debt" onclick="showDebtsModal()"><h3><i class="fas fa-hand-holding-usd"></i> إجمالي الديون</h3><div class="value" id="totalDebt">0</div><small style="font-size:0.7rem;">اضغط للتفاصيل</small></div>
+        </div>
+        <div class="card">
+            <div><i class="fas fa-info-circle"></i> *الربح = (سعر البيع - سعر الشراء) للباقات المباعة | صافي الربح = الربح - المصروفات</div>
+            <div class="backup-buttons">
+                <button onclick="exportAllData()" style="background:#10b981;"><i class="fas fa-database"></i> 📥 تصدير جميع البيانات</button>
+                <button onclick="importAllData()" style="background:#f59e0b;"><i class="fas fa-upload"></i> 📤 استرداد البيانات</button>
+            </div>
+            <small style="display:block; margin-top:8px;"><i class="fas fa-info-circle"></i> تصدير البيانات يحفظ العملاء، الباقات، المبيعات، المصروفات، والإعدادات في ملف. استخدم الاسترداد عند تغيير الجهاز.</small>
+        </div>
+    </div>
+
+    <div id="clientsPage" class="hidden">
+        <div class="card">
+            <input type="text" id="cname" placeholder="اسم العميل الجديد">
+            <input type="tel" id="cphone" placeholder="رقم الهاتف">
+            <div style="display:flex; gap:10px; align-items:center;">
+                <input type="number" id="clientDebtLimit" placeholder="حد المديونية (ج.م)" value="150" step="50">
+                <span>الحد الافتراضي 150 ج.م</span>
+            </div>
+            <button onclick="addClient()"><i class="fas fa-user-plus"></i> إضافة عميل جديد</button>
+            <div style="margin-top:16px;">
+                <div class="search-container" style="position:relative;">
+                    <input type="text" id="clientSearchField" placeholder="ابحث باسم العميل أو الكود (أول حرف)...">
+                    <div id="clientSearchSuggestions" class="suggestions-list"></div>
+                </div>
+            </div>
+        </div>
+        <div id="clientsList"></div>
+    </div>
+
+    <div id="clientDetailsPage" class="hidden">
+        <div id="clientDetailsContent"></div>
+        <div style="display:flex; gap:12px; margin:12px auto; max-width:500px; flex-wrap:wrap;">
+            <div style="flex:2; display:flex; gap:8px;">
+                <input type="number" id="paymentAmount" placeholder="مبلغ التسديد" step="1" style="margin:0;">
+                <button onclick="recordPayment()" style="background:#10b981; margin:0;"><i class="fas fa-money-bill-wave"></i> تسديد دفعة</button>
+            </div>
+            <button onclick="sendWhatsApp()" style="background:#25D366; flex:1;"><i class="fab fa-whatsapp"></i> واتساب بالكشف</button>
+            <button onclick="showPage('clientsPage')" style="background:#475569; flex:1;"><i class="fas fa-arrow-right"></i> رجوع</button>
+        </div>
+    </div>
+
+    <div id="packagesPage" class="hidden">
+        <div class="card">
+            <input type="text" id="pname" placeholder="اسم الباقة">
+            <input type="number" id="buy" placeholder="سعر الشراء">
+            <input type="number" id="sell" placeholder="سعر البيع">
+            <div style="display:flex; gap:10px; align-items:center;">
+                <input type="number" id="pointsGiven" placeholder="نقاط الولاء الممنوحة" value="1" step="1" min="0">
+                <span>نقطة/نقاط</span>
+            </div>
+            <button onclick="addPackage()"><i class="fas fa-plus-circle"></i> إضافة باقة</button>
+            <hr style="margin:12px 0;">
+            <div class="stock-control">
+                <input type="number" id="addStockQty" placeholder="عدد السوبر باقه للإضافة" min="1">
+                <button onclick="addSuperPackageStock()" style="background:#10b981;"><i class="fas fa-plus-circle"></i> إضافة رصيد</button>
+                <button onclick="removeSuperPackageStock()" style="background:#ef4444;"><i class="fas fa-minus-circle"></i> خصم رصيد</button>
+            </div>
+            <div id="stockInfo" class="debt-warning" style="background:#eef2ff; margin-top:8px;"></div>
+            <hr style="margin:12px 0;">
+            <h4>إعدادات الخصم الكمي</h4>
+            <div class="bulk-discount-row">
+                <input type="number" id="bulkQuantity" placeholder="الكمية المطلوبة للخصم" value="3" min="2">
+                <input type="number" id="bulkDiscountPercent" placeholder="نسبة الخصم %" value="10" min="0" max="100">
+                <button onclick="saveBulkDiscountSettings()"><i class="fas fa-save"></i> حفظ</button>
+            </div>
+            <div id="bulkDiscountInfo" class="debt-warning" style="background:#eef2ff; margin-top:8px;"></div>
+            <hr style="margin:12px 0;">
+            <h4>إعدادات نظام النقاط</h4>
+            <div class="stock-control">
+                <input type="number" id="pointsRequired" placeholder="النقاط المطلوبة للخصم" min="1" step="1">
+                <input type="number" id="discountPercent" placeholder="نسبة الخصم %" min="0" max="100" step="1">
+                <button onclick="saveLoyaltySettings()"><i class="fas fa-save"></i> حفظ الإعدادات</button>
+            </div>
+            <div id="loyaltySettingsInfo" class="debt-warning" style="background:#eef2ff; margin-top:8px;"></div>
+            <hr style="margin:12px 0;">
+            <h4>إعدادات حد المديونية العام</h4>
+            <div class="stock-control">
+                <input type="number" id="globalDebtLimit" placeholder="حد المديونية الافتراضي" value="150" step="50">
+                <button onclick="saveGlobalDebtLimit()"><i class="fas fa-save"></i> حفظ الحد الافتراضي</button>
+            </div>
+        </div>
+        <div id="packagesList"></div>
+    </div>
+
+    <div id="salesPage" class="hidden">
+        <div class="card">
+            <div class="search-container">
+                <input type="text" id="clientSearchInput" placeholder="ابحث باسم العميل أو رقم هاتفه أو كوده...">
+                <div id="clientSuggestions" class="suggestions-list"></div>
+            </div>
+            <select id="packageSelect"></select>
+            <div class="bulk-discount-row">
+                <input type="number" id="saleQuantity" placeholder="الكمية (لتفعيل الخصم الكمي)" value="1" min="1">
+                <span id="bulkDiscountPreview" style="font-size:0.85rem;"></span>
+            </div>
+            <div class="loyalty-checkbox" id="loyaltyCheckboxDiv" style="display:none;">
+                <input type="checkbox" id="applyLoyaltyDiscount">
+                <label for="applyLoyaltyDiscount">تطبيق خصم الولاء (يستهلك النقاط)</label>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <input type="number" id="discountAmount" placeholder="خصم إضافي (بالمبلغ)" value="0" step="1" style="flex:1;">
+                <input type="number" id="paidAmountAtSale" placeholder="المبلغ المدفوع الآن" value="0" step="1" style="flex:2;">
+                <button onclick="setFullPayment()" type="button" style="flex:1; background:#10b981;"><i class="fas fa-money-bill-wave"></i> دفع الكل</button>
+            </div>
+            <div id="clientDebtWarning" class="debt-warning" style="display:none;"></div>
+            <button onclick="addSale()"><i class="fas fa-cart-plus"></i> تسجيل البيع</button>
+            <small><i class="fas fa-info-circle"></i> كل باقة تمنح نقاط حسب الإعداد. يمكن استخدام النقاط للحصول على خصم.</small>
+        </div>
+        <div id="todaySalesList" class="card">
+            <h3><i class="fas fa-receipt"></i> فواتير اليوم</h3>
+            <div id="todaySalesContent"></div>
+        </div>
+    </div>
+
+    <div id="invoicesPage" class="hidden">
+        <div class="card">
+            <h3><i class="fas fa-file-invoice"></i> تصفح الفواتير</h3>
+            <div class="filter-row">
+                <button onclick="filterInvoices('today')"><i class="fas fa-calendar-day"></i> اليوم</button>
+                <button onclick="filterInvoices('yesterday')"><i class="fas fa-calendar-alt"></i> أمس</button>
+                <button onclick="filterInvoices('month')"><i class="fas fa-calendar-week"></i> الشهر</button>
+                <button onclick="filterInvoices('lastMonth')"><i class="fas fa-calendar"></i> الشهر الماضي</button>
+                <button onclick="showCustomDateRange()"><i class="fas fa-filter"></i> نطاق تاريخ</button>
+            </div>
+            <div id="customDateRange" style="display:none;" class="date-range">
+                <input type="date" id="startDate">
+                <input type="date" id="endDate">
+                <button onclick="applyCustomRange()">تطبيق</button>
+            </div>
+            <div id="invoiceStats" class="invoice-stats"></div>
+            <div id="invoicesList"></div>
+        </div>
+    </div>
+
+    <div id="expensesPage" class="hidden">
+        <div class="card">
+            <h3><i class="fas fa-plus-circle"></i> إضافة مصروف جديد</h3>
+            <div class="expense-row">
+                <input type="text" id="expenseName" placeholder="اسم المصروف">
+                <input type="number" id="expenseAmount" placeholder="المبلغ">
+                <select id="expenseCategory">
+                    <option value="إيجار">إيجار</option>
+                    <option value="رواتب">رواتب</option>
+                    <option value="مشتريات">مشتريات</option>
+                    <option value="صيانة">صيانة</option>
+                    <option value="أخرى">أخرى</option>
+                </select>
+            </div>
+            <button onclick="addExpense()"><i class="fas fa-plus"></i> إضافة مصروف</button>
+        </div>
+        <div id="expensesList"></div>
+    </div>
+
+    <div class="bottom-nav">
+        <button onclick="showPage('dashboard')" id="navDashboard"><i class="fas fa-chart-pie"></i><span>الرئيسية</span></button>
+        <button onclick="showPage('clientsPage')" id="navClients"><i class="fas fa-users"></i><span>العملاء</span></button>
+        <button onclick="showPage('packagesPage')" id="navPackages"><i class="fas fa-tags"></i><span>الباقات</span></button>
+        <button onclick="showPage('salesPage')" id="navSales"><i class="fas fa-shopping-cart"></i><span>المبيعات</span></button>
+        <button onclick="showPage('invoicesPage')" id="navInvoices"><i class="fas fa-file-invoice"></i><span>الفواتير</span></button>
+        <button onclick="showPage('expensesPage')" id="navExpenses"><i class="fas fa-money-bill-wave"></i><span>المصروفات</span></button>
+    </div>
+</div>
+
+<div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+        <i class="fas fa-lock" style="font-size:3rem; margin-bottom:1rem; color:var(--bottom-nav-active);"></i>
+        <h3>تسجيل الدخول</h3>
+        <input type="text" id="loginUsername" placeholder="اسم المستخدم" value="admin">
+        <input type="password" id="loginPassword" placeholder="كلمة المرور">
+        <button onclick="attemptLogin()">دخول</button>
+        <p style="margin-top:12px; font-size:0.8rem;">المستخدم الافتراضي: admin / 12345</p>
+    </div>
+</div>
+
+<script>
+// ========== نظام تسجيل الدخول والإعدادات ==========
+let authCredentials = { username: "admin", password: "12345" };
+function loadAuth() {
+    const stored = localStorage.getItem("auth_credentials");
+    if (stored) try { authCredentials = JSON.parse(stored); } catch(e) {}
+}
+function saveAuth() { localStorage.setItem("auth_credentials", JSON.stringify(authCredentials)); }
+function checkLogin() {
+    const loggedIn = localStorage.getItem("logged_in");
+    if (loggedIn === "true") {
+        document.getElementById("loginOverlay").style.display = "none";
+        document.getElementById("appContainer").style.display = "block";
+        loadAllDataAndRender();
+    } else {
+        document.getElementById("loginOverlay").style.display = "flex";
+        document.getElementById("appContainer").style.display = "none";
+    }
+}
+function attemptLogin() {
+    const username = document.getElementById("loginUsername").value;
+    const password = document.getElementById("loginPassword").value;
+    if (username === authCredentials.username && password === authCredentials.password) {
+        localStorage.setItem("logged_in", "true");
+        checkLogin();
+    } else alert("اسم المستخدم أو كلمة المرور غير صحيحة");
+}
+function logout() { localStorage.removeItem("logged_in"); checkLogin(); }
+
+function showSettingsModal() {
+    const existing = document.getElementById("settingsModal");
+    if (existing) existing.remove();
+    const modalHtml = `
+        <div class="modal" id="settingsModal">
+            <div class="modal-content">
+                <h3><i class="fas fa-user-cog"></i> إعدادات الدخول</h3>
+                <hr>
+                <input type="text" id="newUsername" placeholder="اسم المستخدم الجديد" value="${authCredentials.username.replace(/"/g, '&quot;')}">
+                <input type="password" id="newPassword" placeholder="كلمة المرور الجديدة">
+                <input type="password" id="confirmPassword" placeholder="تأكيد كلمة المرور">
+                <button onclick="changeCredentials()">تحديث البيانات</button>
+                <button onclick="closeSettingsModal()" style="background:#475569;">إلغاء</button>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+function changeCredentials() {
+    const newUser = document.getElementById('newUsername').value.trim();
+    const newPass = document.getElementById('newPassword').value;
+    const confirmPass = document.getElementById('confirmPassword').value;
+    if (!newUser) { alert("الرجاء إدخال اسم مستخدم"); return; }
+    if (newPass !== confirmPass) { alert("كلمة المرور غير متطابقة"); return; }
+    authCredentials.username = newUser;
+    if (newPass) authCredentials.password = newPass;
+    saveAuth();
+    closeSettingsModal();
+    alert("تم تحديث بيانات الدخول بنجاح");
+}
+function closeSettingsModal() { const modal = document.getElementById('settingsModal'); if(modal) modal.remove(); }
+
+// ========== بيانات النظام الأساسية ==========
+let clients = [], packages = [], sales = [], expenses = [];
+let superPackageStock = 0, selectedClientId = null, currentSelectedClient = null, lastInvoiceNumber = 0;
+let loyaltyConfig = { pointsRequired: 10, discountPercent: 50 };
+let bulkDiscountConfig = { quantity: 3, percent: 10 };
+let globalDebtLimit = 150;
+
+function toNumber(val, def=0) { let n=Number(val); return isNaN(n)?def:n; }
+function sanitizeData() {
+    clients.forEach(c=>{ c.id=toNumber(c.id); c.points=toNumber(c.points); c.debtLimit=c.debtLimit||globalDebtLimit; if(!c.code) c.code=generateClientCode(); });
+    packages.forEach(p=>{ p.id=toNumber(p.id); p.buy=toNumber(p.buy); p.sell=toNumber(p.sell); p.pointsGiven=toNumber(p.pointsGiven,1); });
+    sales.forEach(s=>{ s.id=toNumber(s.id); s.clientId=toNumber(s.clientId); s.packageId=toNumber(s.packageId); s.sellPrice=toNumber(s.sellPrice); s.paidAmount=toNumber(s.paidAmount); s.discount=toNumber(s.discount); s.originalPrice=toNumber(s.originalPrice); s.pointsUsed=toNumber(s.pointsUsed); s.quantity=toNumber(s.quantity,1); });
+    expenses.forEach(e=>{ e.id=toNumber(e.id); e.amount=toNumber(e.amount); });
+    superPackageStock=toNumber(superPackageStock); lastInvoiceNumber=toNumber(lastInvoiceNumber);
+    loyaltyConfig.pointsRequired=toNumber(loyaltyConfig.pointsRequired,10); loyaltyConfig.discountPercent=toNumber(loyaltyConfig.discountPercent,50);
+    bulkDiscountConfig.quantity=toNumber(bulkDiscountConfig.quantity,3); bulkDiscountConfig.percent=toNumber(bulkDiscountConfig.percent,10);
+    globalDebtLimit=toNumber(globalDebtLimit,150);
+}
+function loadData() {
+    try {
+        if(localStorage.getItem('clients')) clients=JSON.parse(localStorage.getItem('clients'));
+        if(localStorage.getItem('packages')) packages=JSON.parse(localStorage.getItem('packages'));
+        if(localStorage.getItem('sales')) sales=JSON.parse(localStorage.getItem('sales'));
+        if(localStorage.getItem('expenses')) expenses=JSON.parse(localStorage.getItem('expenses'));
+        if(localStorage.getItem('superPackageStock')) superPackageStock=parseInt(localStorage.getItem('superPackageStock'));
+        if(localStorage.getItem('lastInvoiceNumber')) lastInvoiceNumber=parseInt(localStorage.getItem('lastInvoiceNumber'));
+        if(localStorage.getItem('loyaltyConfig')) loyaltyConfig=JSON.parse(localStorage.getItem('loyaltyConfig'));
+        if(localStorage.getItem('bulkDiscountConfig')) bulkDiscountConfig=JSON.parse(localStorage.getItem('bulkDiscountConfig'));
+        if(localStorage.getItem('globalDebtLimit')) globalDebtLimit=parseInt(localStorage.getItem('globalDebtLimit'));
+    } catch(e) {}
+    sanitizeData();
+    if(!packages.find(p=>p.name==="سوبر باقه")) packages.push({ id:Date.now(), name:"سوبر باقه", buy:0, sell:0, pointsGiven:0 });
+    clients.forEach(c=>{ if(c.points===undefined) c.points=0; if(!c.debtLimit) c.debtLimit=globalDebtLimit; });
+    saveAll();
+}
+function saveClients() { localStorage.setItem('clients',JSON.stringify(clients)); }
+function savePackages() { localStorage.setItem('packages',JSON.stringify(packages)); }
+function saveSales() { localStorage.setItem('sales',JSON.stringify(sales)); }
+function saveExpenses() { localStorage.setItem('expenses',JSON.stringify(expenses)); }
+function saveStock() { localStorage.setItem('superPackageStock',superPackageStock); }
+function saveInvoiceNumber() { localStorage.setItem('lastInvoiceNumber',lastInvoiceNumber); }
+function saveLoyaltySettings() { localStorage.setItem('loyaltyConfig',JSON.stringify(loyaltyConfig)); }
+function saveBulkDiscount() { localStorage.setItem('bulkDiscountConfig',JSON.stringify(bulkDiscountConfig)); }
+function saveGlobalDebtLimitSetting() { localStorage.setItem('globalDebtLimit',globalDebtLimit); }
+function saveAll() { saveClients(); savePackages(); saveSales(); saveExpenses(); saveStock(); saveInvoiceNumber(); saveLoyaltySettings(); saveBulkDiscount(); saveGlobalDebtLimitSetting(); }
+
+function generateInvoiceNumber() { lastInvoiceNumber++; saveInvoiceNumber(); return `INV-${lastInvoiceNumber.toString().padStart(4,'0')}`; }
+function generateClientCode() { return 'C'+Date.now().toString().slice(-6); }
+function getClientTotalDebt(clientId) { let debt=0; sales.filter(s=>s.clientId===clientId).forEach(s=>{ debt+=Math.max(0,s.sellPrice-(s.paidAmount||0)); }); return debt; }
+function getAllDebtsTotal() { let total=0; clients.forEach(c=>total+=getClientTotalDebt(c.id)); return total; }
+function getTotalExpenses() { let total=0; expenses.forEach(e=>total+=e.amount); return total; }
+function getNetProfit() { let totalProfit=0; for(let sale of sales){ const pkg=packages.find(p=>p.id===sale.packageId); if(pkg) totalProfit+=(sale.sellPrice-pkg.buy); } return totalProfit-getTotalExpenses(); }
+
+function updateStats() {
+    let totalSalesVal=0, monthProfit=0, dayProfit=0;
+    const now=new Date(), currentMonth=now.getMonth(), currentYear=now.getFullYear(), currentDay=now.toDateString();
+    for(let sale of sales){
+        totalSalesVal+=sale.sellPrice;
+        const saleDate=new Date(sale.date);
+        const pkg=packages.find(p=>p.id===sale.packageId);
+        if(pkg){
+            const profit=sale.sellPrice-pkg.buy;
+            if(saleDate.getMonth()===currentMonth && saleDate.getFullYear()===currentYear) monthProfit+=profit;
+            if(saleDate.toDateString()===currentDay) dayProfit+=profit;
+        }
+    }
+    document.getElementById('totalSales').innerText=totalSalesVal.toFixed(2);
+    document.getElementById('monthProfit').innerText=monthProfit.toFixed(2);
+    document.getElementById('dayProfit').innerText=dayProfit.toFixed(2);
+    document.getElementById('totalExpenses').innerText=getTotalExpenses().toFixed(2);
+    document.getElementById('netProfit').innerText=getNetProfit().toFixed(2);
+    document.getElementById('stockCount').innerText=superPackageStock;
+    document.getElementById('totalDebt').innerText=getAllDebtsTotal().toFixed(2);
+    document.getElementById('clientsCount').innerText=clients.length;
+    if(document.getElementById('stockInfo')) document.getElementById('stockInfo').innerText=`رصيد سوبر باقه: ${superPackageStock}`;
+    if(document.getElementById('pointsRequired')) document.getElementById('pointsRequired').value=loyaltyConfig.pointsRequired;
+    if(document.getElementById('discountPercent')) document.getElementById('discountPercent').value=loyaltyConfig.discountPercent;
+    if(document.getElementById('loyaltySettingsInfo')) document.getElementById('loyaltySettingsInfo').innerText=`الإعدادات: ${loyaltyConfig.pointsRequired} نقطة → خصم ${loyaltyConfig.discountPercent}%`;
+    if(document.getElementById('bulkQuantity')) document.getElementById('bulkQuantity').value=bulkDiscountConfig.quantity;
+    if(document.getElementById('bulkDiscountPercent')) document.getElementById('bulkDiscountPercent').value=bulkDiscountConfig.percent;
+    if(document.getElementById('bulkDiscountInfo')) document.getElementById('bulkDiscountInfo').innerText=`الخصم الكمي: شراء ${bulkDiscountConfig.quantity} باقات أو أكثر يحصل على خصم ${bulkDiscountConfig.percent}%`;
+    if(document.getElementById('globalDebtLimit')) document.getElementById('globalDebtLimit').value=globalDebtLimit;
+    renderTodaySales();
+}
+
+// ========== نوافذ المبيعات الشهرية والأرباح اليومية ==========
+function showMonthlySalesModal() {
+    const monthly = {};
+    sales.forEach(s => {
+        const d = new Date(s.date);
+        const key = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}`;
+        monthly[key] = (monthly[key] || 0) + s.sellPrice;
+    });
+    let html = `<div class="modal" id="monthlySalesModal"><div class="modal-content"><h3><i class="fas fa-chart-line"></i> إجمالي المبيعات حسب الشهر</h3><hr><table class="sales-table"><thead><tr><th>السنة/الشهر</th><th>إجمالي المبيعات</th></tr></thead><tbody>`;
+    const sorted = Object.entries(monthly).sort((a,b) => b[0].localeCompare(a[0]));
+    if(sorted.length === 0) html += `<tr><td colspan="2">لا توجد مبيعات</td></tr>`;
+    else sorted.forEach(([k,v]) => html += `<tr><td>${k}</td><td>${v.toFixed(2)} ج.م</td></tr>`);
+    html += `</tbody></table><button onclick="closeModal('monthlySalesModal')" style="margin-top:16px;">إغلاق</button></div></div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+}
+function showDailyProfitsModal() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const daily = {};
+    sales.forEach(s => {
+        const d = new Date(s.date);
+        if(d.getFullYear() === year && d.getMonth() === month) {
+            const dayKey = d.getDate();
+            const pkg = packages.find(p=>p.id===s.packageId);
+            if(pkg) daily[dayKey] = (daily[dayKey] || 0) + (s.sellPrice - pkg.buy);
+        }
+    });
+    let totalMonthProfit = 0;
+    for(let day in daily) totalMonthProfit += daily[day];
+    let html = `<div class="modal" id="dailyProfitsModal"><div class="modal-content"><h3><i class="fas fa-sun"></i> أرباح كل يوم في الشهر الحالي</h3><hr>`;
+    html += `<p style="margin-bottom:12px;"><strong>إجمالي ربح الشهر:</strong> ${totalMonthProfit.toFixed(2)} ج.م</p>`;
+    html += `<table class="sales-table"><thead><tr><th>اليوم</th><th>الربح</th></tr></thead><tbody>`;
+    const days = Object.keys(daily).sort((a,b) => a-b);
+    if(days.length === 0) html += `<tr><td colspan="2">لا توجد أرباح هذا الشهر</td></tr>`;
+    else days.forEach(day => html += `<tr><td>${day}</td><td>${daily[day].toFixed(2)} ج.م</td></tr>`);
+    html += `</tbody></table><button onclick="closeModal('dailyProfitsModal')" style="margin-top:16px;">إغلاق</button></div></div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+}
+function closeModal(id) { const m = document.getElementById(id); if(m) m.remove(); }
+
+function exportAllData() {
+    const backupData={ clients, packages, sales, expenses, superPackageStock, lastInvoiceNumber, loyaltyConfig, bulkDiscountConfig, globalDebtLimit, version:"1.1", exportDate:new Date().toISOString() };
+    const dataStr=JSON.stringify(backupData,null,2);
+    const blob=new Blob([dataStr],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download=`backup_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.json`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    alert('✅ تم تصدير جميع البيانات بنجاح!');
+}
+function importAllData() {
+    const input=document.createElement('input');
+    input.type='file'; input.accept='application/json';
+    input.onchange=e=>{
+        const file=e.target.files[0];
+        if(!file) return;
+        const reader=new FileReader();
+        reader.onload=ev=>{
+            try{
+                const data=JSON.parse(ev.target.result);
+                if(confirm('⚠️ سيتم استبدال جميع البيانات الحالية. هل أنت متأكد؟')){
+                    clients=data.clients||[]; packages=data.packages||[]; sales=data.sales||[]; expenses=data.expenses||[];
+                    superPackageStock=data.superPackageStock??0; lastInvoiceNumber=data.lastInvoiceNumber??0;
+                    loyaltyConfig=data.loyaltyConfig||{pointsRequired:10,discountPercent:50};
+                    bulkDiscountConfig=data.bulkDiscountConfig||{quantity:3,percent:10};
+                    globalDebtLimit=data.globalDebtLimit??150;
+                    sanitizeData(); saveAll(); loadAllDataAndRender();
+                    alert('✅ تم استرداد البيانات بنجاح!');
+                }
+            } catch(err){ alert('❌ الملف غير صالح'); }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+// ========== دوال العملاء ==========
+function renderClients() {
+    const container=document.getElementById('clientsList');
+    if(!container) return;
+    if(!clients.length){ container.innerHTML='<div class="card">لا يوجد عملاء</div>'; return; }
+    let html='';
+    clients.forEach(c=>{
+        const debt=getClientTotalDebt(c.id);
+        const debtLimit=c.debtLimit||globalDebtLimit;
+        const isOverLimit=debt>=debtLimit;
+        html+=`<div class="card" style="margin-bottom:12px; cursor:pointer; ${isOverLimit?'border-right:4px solid #ef4444;':''}" onclick="showClientDetails(${c.id})">
+                    <div><i class="fas fa-user"></i> ${c.name} (${c.code})</div>
+                    <div><i class="fas fa-phone"></i> ${c.phone||'لا يوجد'}</div>
+                    <div><i class="fas fa-dollar-sign"></i> المديونية: ${debt.toFixed(2)} / ${debtLimit} ج.م ${isOverLimit?'<span style="color:#ef4444;">(تجاوز الحد)</span>':''}</div>
+                    <div><i class="fas fa-star"></i> النقاط: <span class="points-badge">${c.points||0}</span></div>
+                    <button class="edit-btn" onclick="event.stopPropagation(); editClient(${c.id})"><i class="fas fa-edit"></i> تعديل</button>
+                    <button class="delete-sale-btn" onclick="event.stopPropagation(); resetClientPoints(${c.id})"><i class="fas fa-sync-alt"></i> إعادة ضبط النقاط</button>
+                    <button class="delete-sale-btn" onclick="event.stopPropagation(); deleteClient(${c.id})"><i class="fas fa-trash"></i> حذف</button>
+                </div>`;
+    });
+    container.innerHTML=html;
+}
+function setupClientSearchInClientsPage() {
+    const input=document.getElementById('clientSearchField');
+    const sugg=document.getElementById('clientSearchSuggestions');
+    if(!input) return;
+    input.addEventListener('input',function(){
+        const val=this.value.trim().toLowerCase();
+        if(!val){ sugg.style.display='none'; return; }
+        const filtered=clients.filter(c=>c.name.toLowerCase().includes(val)||c.code.toLowerCase().includes(val)||(c.phone&&c.phone.includes(val)));
+        if(!filtered.length){ sugg.style.display='none'; return; }
+        sugg.innerHTML='';
+        filtered.forEach(c=>{
+            const div=document.createElement('div');
+            div.textContent=`${c.name} (${c.code}) - ${c.phone||''}`;
+            div.onclick=()=>{ input.value=`${c.name} (${c.code})`; sugg.style.display='none'; showClientDetails(c.id); };
+            sugg.appendChild(div);
+        });
+        sugg.style.display='block';
+    });
+    document.addEventListener('click',(e)=>{ if(!input.contains(e.target)&&!sugg.contains(e.target)) sugg.style.display='none'; });
+}
+function addClient() {
+    const name=document.getElementById('cname').value.trim();
+    const phone=document.getElementById('cphone').value.trim();
+    const debtLimit=parseFloat(document.getElementById('clientDebtLimit').value)||globalDebtLimit;
+    if(!name){ alert('الرجاء إدخال اسم العميل'); return; }
+    clients.push({ id:Date.now(), code:generateClientCode(), name, phone, points:0, debtLimit });
+    saveClients(); renderClients();
+    document.getElementById('cname').value=''; document.getElementById('cphone').value='';
+    updateStats();
+}
+function editClient(id){
+    const client=clients.find(c=>c.id===id);
+    if(!client) return;
+    const newName=prompt('الاسم الجديد',client.name);
+    if(newName&&newName.trim()) client.name=newName.trim();
+    const newPhone=prompt('رقم الهاتف الجديد',client.phone);
+    if(newPhone!==null) client.phone=newPhone.trim();
+    const newDebtLimit=parseFloat(prompt('حد المديونية الجديد',client.debtLimit||globalDebtLimit));
+    if(!isNaN(newDebtLimit)&&newDebtLimit>0) client.debtLimit=newDebtLimit;
+    saveClients(); renderClients();
+    if(selectedClientId===id) showClientDetails(id);
+}
+function deleteClient(id){
+    if(confirm('هل أنت متأكد من حذف العميل؟ سيتم حذف جميع مبيعاته.')){
+        clients=clients.filter(c=>c.id!==id);
+        sales=sales.filter(s=>s.clientId!==id);
+        saveClients(); saveSales(); renderClients(); updateStats();
+        if(selectedClientId===id) showPage('clientsPage');
+    }
+}
+function resetClientPoints(id){
+    const client=clients.find(c=>c.id===id);
+    if(client&&confirm(`إعادة ضبط نقاط ${client.name} إلى الصفر؟`)){ client.points=0; saveClients(); renderClients(); if(selectedClientId===id) showClientDetails(id); alert('تم إعادة ضبط النقاط'); }
+}
+function showClientDetails(clientId){
+    const client=clients.find(c=>c.id===clientId);
+    if(!client) return;
+    selectedClientId=clientId;
+    const clientSales=sales.filter(s=>s.clientId===clientId).sort((a,b)=>new Date(b.date)-new Date(a.date));
+    let html=`<div class="card"><h3>${client.name} (${client.code})</h3><p><i class="fas fa-phone"></i> ${client.phone||'لا يوجد'}</p><p><i class="fas fa-dollar-sign"></i> إجمالي المديونية: ${getClientTotalDebt(clientId).toFixed(2)} / ${client.debtLimit||globalDebtLimit} ج.م</p><p><i class="fas fa-star"></i> النقاط: ${client.points||0}</p></div>`;
+    if(!clientSales.length) html+='<div class="card">لا توجد مبيعات لهذا العميل</div>';
+    else{
+        html+='<div class="card"><h4>سجل المبيعات</h4>';
+        clientSales.forEach(sale=>{
+            const pkg=packages.find(p=>p.id===sale.packageId);
+            const remaining=sale.sellPrice-(sale.paidAmount||0);
+            html+=`<div style="border-bottom:1px solid var(--border-color); padding:10px 0;">
+                        <div><strong>فاتورة: ${sale.invoiceNumber}</strong> | ${pkg?pkg.name:'باقة محذوفة'} ${sale.quantity>1?`(×${sale.quantity})`:''}</div>
+                        <div>السعر: ${sale.sellPrice} ج.م | المدفوع: ${sale.paidAmount||0} ج.م | المتبقي: ${remaining} ج.م</div>
+                        <div>التاريخ: ${new Date(sale.date).toLocaleString('ar-EG')}</div>
+                        <button class="edit-btn" onclick="editSale(${sale.id})"><i class="fas fa-edit"></i> تعديل الدفع</button>
+                        <button class="refund-btn" onclick="refundSale(${sale.id})"><i class="fas fa-undo-alt"></i> مرتجع</button>
+                    </div>`;
+        });
+        html+='</div>';
+    }
+    document.getElementById('clientDetailsContent').innerHTML=html;
+    document.getElementById('paymentAmount').value='';
+    showPage('clientDetailsPage');
+}
+function sendWhatsApp(){
+    if(!selectedClientId){ alert('الرجاء اختيار عميل'); return; }
+    const client=clients.find(c=>c.id===selectedClientId);
+    if(!client){ alert('العميل غير موجود'); return; }
+    let phone=client.phone?client.phone.trim():'';
+    if(!phone){ alert('لا يوجد رقم هاتف لهذا العميل'); return; }
+    let cleaned=phone.replace(/[^\d+]/g,'');
+    if(cleaned.startsWith('0')&&!cleaned.startsWith('+')) cleaned=cleaned.substring(1);
+    if(!cleaned.startsWith('+')) cleaned='+20'+cleaned;
+    const clientSales=sales.filter(s=>s.clientId===selectedClientId).sort((a,b)=>new Date(b.date)-new Date(a.date));
+    let msg=`*كشف حساب العميل:* ${client.name}\n*الكود:* ${client.code}\n*الهاتف:* ${client.phone}\n*النقاط:* ${client.points||0}\n*حد المديونية:* ${client.debtLimit||globalDebtLimit} ج.م\n━━━━━━━━━━━━━━━━━━\n`;
+    if(!clientSales.length) msg+=`لا توجد مبيعات مسجلة.\n`;
+    else{
+        msg+=`*المبيعات:*\n`;
+        clientSales.forEach(sale=>{
+            const pkg=packages.find(p=>p.id===sale.packageId);
+            const pkgName=pkg?pkg.name:'باقة محذوفة';
+            const remaining=(sale.sellPrice-(sale.paidAmount||0)).toFixed(2);
+            msg+=`📄 فاتورة: ${sale.invoiceNumber}\n   ${pkgName}${sale.quantity>1?` (×${sale.quantity})`:''}\n   السعر: ${sale.sellPrice} ج.م\n   المدفوع: ${sale.paidAmount||0} ج.م\n   المتبقي: ${remaining} ج.م\n   التاريخ: ${new Date(sale.date).toLocaleDateString('ar-EG')}\n━━━━━━━━━━━━━━━━━━\n`;
+        });
+    }
+    msg+=`*إجمالي المديونية:* ${getClientTotalDebt(selectedClientId).toFixed(2)} ج.م\n*نقاط الولاء:* ${client.points||0} نقطة (كل ${loyaltyConfig.pointsRequired} نقطة = خصم ${loyaltyConfig.discountPercent}%)\nشكراً لتعاملك معنا 😊`;
+    window.open(`https://wa.me/${cleaned}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+function recordPayment(){
+    if(!selectedClientId){ alert('اختر عميلاً أولاً'); return; }
+    const amountInput=document.getElementById('paymentAmount');
+    let amount=parseFloat(amountInput.value);
+    if(isNaN(amount)||amount<=0){ alert('أدخل مبلغاً صحيحاً أكبر من صفر'); return; }
+    const totalDebt=getClientTotalDebt(selectedClientId);
+    if(amount>totalDebt){
+        if(!confirm(`المبلغ المدخل (${amount}) أكبر من إجمالي المديونية (${totalDebt.toFixed(2)}). هل تريد تسديد المبلغ بالكامل؟`)) return;
+        amount=totalDebt;
+    }
+    if(amount===0){ alert('لا توجد مديونية للتسديد'); return; }
+    let unpaidSales=sales.filter(s=>s.clientId===selectedClientId && s.paidAmount<s.sellPrice).sort((a,b)=>new Date(a.date)-new Date(b.date));
+    let remaining=amount;
+    for(let sale of unpaidSales){
+        const due=sale.sellPrice-sale.paidAmount;
+        if(remaining>=due){ sale.paidAmount=sale.sellPrice; remaining-=due; }
+        else{ sale.paidAmount+=remaining; remaining=0; break; }
+    }
+    if(remaining>0) alert(`تم تسديد ${amount-remaining} من ${amount}. الباقي ${remaining} لم يتم تسديده لعدم وجود فواتير كافية.`);
+    saveSales(); updateStats();
+    if(selectedClientId) showClientDetails(selectedClientId);
+    amountInput.value='';
+    alert(`تم تسجيل دفعة بقيمة ${amount.toFixed(2)} بنجاح.`);
+}
+// ========== دوال الباقات ==========
+function renderPackages(){
+    const container=document.getElementById('packagesList');
+    if(!container) return;
+    if(!packages.length){ container.innerHTML='<div class="card">لا توجد باقات</div>'; return; }
+    let html='';
+    packages.forEach(p=>{
+        html+=`<div class="card"><div><strong>${p.name}</strong></div><div>سعر الشراء: ${p.buy} | سعر البيع: ${p.sell} | نقاط: ${p.pointsGiven||1}</div>
+                 <button class="edit-btn" onclick="editPackage(${p.id})"><i class="fas fa-edit"></i> تعديل</button>
+                 <button class="delete-sale-btn" onclick="deletePackage(${p.id})"><i class="fas fa-trash"></i> حذف</button></div>`;
+    });
+    container.innerHTML=html;
+}
+function addPackage(){
+    const name=document.getElementById('pname').value.trim();
+    let buy=toNumber(document.getElementById('buy').value);
+    let sell=toNumber(document.getElementById('sell').value);
+    let pointsGiven=toNumber(document.getElementById('pointsGiven').value,1);
+    if(!name){ alert('أدخل اسم الباقة'); return; }
+    packages.push({ id:Date.now(), name, buy, sell, pointsGiven });
+    savePackages(); renderPackages();
+    document.getElementById('pname').value=''; document.getElementById('buy').value=''; document.getElementById('sell').value=''; document.getElementById('pointsGiven').value=1;
+    updateStats();
+}
+function editPackage(id){
+    const pkg=packages.find(p=>p.id===id);
+    if(!pkg) return;
+    const newName=prompt('الاسم الجديد',pkg.name);
+    if(newName&&newName.trim()) pkg.name=newName.trim();
+    const newBuy=parseFloat(prompt('سعر الشراء الجديد',pkg.buy));
+    if(!isNaN(newBuy)) pkg.buy=newBuy;
+    const newSell=parseFloat(prompt('سعر البيع الجديد',pkg.sell));
+    if(!isNaN(newSell)) pkg.sell=newSell;
+    const newPoints=parseFloat(prompt('نقاط الولاء الممنوحة',pkg.pointsGiven||1));
+    if(!isNaN(newPoints)&&newPoints>=0) pkg.pointsGiven=newPoints;
+    savePackages(); renderPackages(); updateStats();
+}
+function deletePackage(id){
+    if(confirm('حذف الباقة سيؤدي لحذف جميع المبيعات المرتبطة بها. استمرار؟')){
+        packages=packages.filter(p=>p.id!==id);
+        sales=sales.filter(s=>s.packageId!==id);
+        savePackages(); saveSales(); renderPackages(); updateStats();
+    }
+}
+function addSuperPackageStock(){
+    const qty=parseInt(document.getElementById('addStockQty').value);
+    if(isNaN(qty)||qty<=0){ alert('أدخل عدداً صحيحاً موجباً'); return; }
+    superPackageStock+=qty; saveStock(); updateStats();
+    document.getElementById('addStockQty').value='';
+}
+function removeSuperPackageStock(){
+    const qty=parseInt(document.getElementById('addStockQty').value);
+    if(isNaN(qty)||qty<=0){ alert('أدخل عدداً صحيحاً موجباً'); return; }
+    if(superPackageStock<qty){ alert('الرصيد غير كافٍ'); return; }
+    superPackageStock-=qty; saveStock(); updateStats();
+    document.getElementById('addStockQty').value='';
+}
+function saveBulkDiscountSettings(){
+    const qty=parseInt(document.getElementById('bulkQuantity').value);
+    const percent=parseInt(document.getElementById('bulkDiscountPercent').value);
+    if(!isNaN(qty)&&qty>=2) bulkDiscountConfig.quantity=qty;
+    if(!isNaN(percent)&&percent>=0&&percent<=100) bulkDiscountConfig.percent=percent;
+    saveBulkDiscount(); updateStats(); alert('تم حفظ إعدادات الخصم الكمي');
+}
+function saveLoyaltySettings(){
+    const points=parseInt(document.getElementById('pointsRequired').value);
+    const percent=parseInt(document.getElementById('discountPercent').value);
+    if(!isNaN(points)&&points>0) loyaltyConfig.pointsRequired=points;
+    if(!isNaN(percent)&&percent>=0) loyaltyConfig.discountPercent=percent;
+    saveLoyaltySettings(); updateStats(); alert('تم حفظ الإعدادات');
+}
+function saveGlobalDebtLimit(){
+    const limit=parseInt(document.getElementById('globalDebtLimit').value);
+    if(!isNaN(limit)&&limit>0){
+        globalDebtLimit=limit;
+        clients.forEach(c=>{ if(!c.debtLimit||c.debtLimit===0) c.debtLimit=globalDebtLimit; });
+        saveGlobalDebtLimitSetting(); saveClients(); updateStats();
+        alert('تم حفظ حد المديونية الافتراضي');
+    }
+}
+// ========== دوال المبيعات ==========
+function populatePackageSelect(){
+    const select=document.getElementById('packageSelect');
+    if(!select) return;
+    select.innerHTML='';
+    packages.forEach(p=>{
+        let option=document.createElement('option');
+        option.value=p.id;
+        option.textContent=`${p.name} - ${p.sell} ج.م (نقاط: ${p.pointsGiven||1})`;
+        select.appendChild(option);
+    });
+}
+function updateBulkDiscountPreview(){
+    const qty=parseInt(document.getElementById('saleQuantity').value)||1;
+    const pkgId=parseInt(document.getElementById('packageSelect').value);
+    const pkg=packages.find(p=>p.id===pkgId);
+    if(pkg && qty>=bulkDiscountConfig.quantity){
+        const discount=(pkg.sell*qty)*(bulkDiscountConfig.percent/100);
+        document.getElementById('bulkDiscountPreview').innerHTML=`✨ خصم كمي: ${bulkDiscountConfig.percent}% (توفير ${discount.toFixed(2)} ج.م)`;
+    } else document.getElementById('bulkDiscountPreview').innerHTML='';
+}
+function setupClientSearch(){
+    const input=document.getElementById('clientSearchInput');
+    const sugg=document.getElementById('clientSuggestions');
+    if(!input) return;
+    input.addEventListener('input',function(){
+        const val=this.value.trim().toLowerCase();
+        if(!val){ sugg.style.display='none'; currentSelectedClient=null; document.getElementById('loyaltyCheckboxDiv').style.display='none'; return; }
+        const filtered=clients.filter(c=>c.name.toLowerCase().includes(val)||c.code.toLowerCase().includes(val)||(c.phone&&c.phone.includes(val)));
+        if(!filtered.length){ sugg.style.display='none'; return; }
+        sugg.innerHTML='';
+        filtered.forEach(c=>{
+            const div=document.createElement('div');
+            div.textContent=`${c.name} (${c.code}) - ${c.phone||''} - نقاط: ${c.points||0}`;
+            div.onclick=()=>{
+                input.value=`${c.name} (${c.code})`;
+                currentSelectedClient=c;
+                sugg.style.display='none';
+                checkClientDebt(c.id);
+                checkLoyaltyEligibility(c);
+            };
+            sugg.appendChild(div);
+        });
+        sugg.style.display='block';
+    });
+    document.addEventListener('click',(e)=>{ if(!input.contains(e.target)&&!sugg.contains(e.target)) sugg.style.display='none'; });
+    const qtyInput=document.getElementById('saleQuantity');
+    if(qtyInput) qtyInput.addEventListener('input',updateBulkDiscountPreview);
+    const packageSelect=document.getElementById('packageSelect');
+    if(packageSelect) packageSelect.addEventListener('change',updateBulkDiscountPreview);
+}
+function checkClientDebt(clientId){
+    const client=clients.find(c=>c.id===clientId);
+    const debt=getClientTotalDebt(clientId);
+    const debtLimit=client?(client.debtLimit||globalDebtLimit):globalDebtLimit;
+    const warnDiv=document.getElementById('clientDebtWarning');
+    if(debt>=debtLimit){
+        warnDiv.style.display='block';
+        warnDiv.innerHTML=`<i class="fas fa-exclamation-triangle"></i> المديونية ${debt.toFixed(2)} ج.م (تجاوز الحد ${debtLimit} ج.م). لا يمكن إضافة بيع.`;
+        document.querySelector('#salesPage button:last-of-type').disabled=true;
+    } else {
+        warnDiv.style.display='none';
+        document.querySelector('#salesPage button:last-of-type').disabled=false;
+    }
+}
+function checkLoyaltyEligibility(client){
+    const div=document.getElementById('loyaltyCheckboxDiv');
+    const msgDiv=document.getElementById('loyaltyMsg');
+    if(msgDiv) msgDiv.remove();
+    if(client.points>=loyaltyConfig.pointsRequired){
+        div.style.display='flex';
+        const msg=document.createElement('div');
+        msg.id='loyaltyMsg';
+        msg.className='debt-warning';
+        msg.style.background='#eef2ff';
+        msg.innerHTML=`<i class="fas fa-gift"></i> العميل لديه ${client.points} نقطة، يمكنه الحصول على خصم ${loyaltyConfig.discountPercent}% على هذه العملية.`;
+        div.parentNode.insertBefore(msg,div.nextSibling);
+    } else div.style.display='none';
+}
+function setFullPayment(){
+    const pkgId=parseInt(document.getElementById('packageSelect').value);
+    const qty=parseInt(document.getElementById('saleQuantity').value)||1;
+    const pkg=packages.find(p=>p.id===pkgId);
+    if(pkg){
+        let totalPrice=pkg.sell*qty;
+        if(qty>=bulkDiscountConfig.quantity) totalPrice=totalPrice*(1-bulkDiscountConfig.percent/100);
+        let finalPrice=totalPrice-(parseFloat(document.getElementById('discountAmount').value)||0);
+        if(finalPrice<0) finalPrice=0;
+        document.getElementById('paidAmountAtSale').value=finalPrice;
+    }
+}
+function addSale(){
+    if(!currentSelectedClient){ alert('اختر عميلاً'); return; }
+    const clientId=currentSelectedClient.id;
+    const client=clients.find(c=>c.id===clientId);
+    const debtLimit=client?(client.debtLimit||globalDebtLimit):globalDebtLimit;
+    if(getClientTotalDebt(clientId)>=debtLimit){ alert('لا يمكن إضافة بيع بسبب تجاوز حد المديونية'); return; }
+    const packageId=parseInt(document.getElementById('packageSelect').value);
+    const qty=parseInt(document.getElementById('saleQuantity').value)||1;
+    let discount=parseFloat(document.getElementById('discountAmount').value)||0;
+    let paid=parseFloat(document.getElementById('paidAmountAtSale').value)||0;
+    const pkg=packages.find(p=>p.id===packageId);
+    if(!pkg){ alert('الباقة غير موجودة'); return; }
+    let totalPrice=pkg.sell*qty;
+    if(qty>=bulkDiscountConfig.quantity){
+        const bulkDiscountAmount=totalPrice*(bulkDiscountConfig.percent/100);
+        discount+=bulkDiscountAmount;
+        totalPrice=totalPrice*(1-bulkDiscountConfig.percent/100);
+    }
+    if(pkg.name==="سوبر باقه"){
+        if(superPackageStock<qty){ alert(`لا يوجد رصيد كاف من سوبر باقه (المتاح: ${superPackageStock})`); return; }
+        superPackageStock-=qty; saveStock(); updateStats();
+    }
+    let finalPrice=totalPrice-discount;
+    let pointsUsed=0;
+    if(document.getElementById('applyLoyaltyDiscount')&&document.getElementById('applyLoyaltyDiscount').checked&&currentSelectedClient.points>=loyaltyConfig.pointsRequired){
+        const loyaltyDiscount=finalPrice*(loyaltyConfig.discountPercent/100);
+        finalPrice=Math.max(0,finalPrice-loyaltyDiscount);
+        discount+=loyaltyDiscount;
+        pointsUsed=loyaltyConfig.pointsRequired;
+        currentSelectedClient.points-=pointsUsed;
+        saveClients();
+        alert(`تم تطبيق خصم الولاء ${loyaltyConfig.discountPercent}%`);
+    }
+    finalPrice=Math.max(0,finalPrice);
+    paid=Math.min(paid,finalPrice);
+    const invoice=generateInvoiceNumber();
+    const pointsEarned=(pkg.pointsGiven||1)*qty;
+    sales.push({ id:Date.now(), invoiceNumber:invoice, clientId, packageId, quantity:qty, originalPrice:pkg.sell, discount, sellPrice:finalPrice, paidAmount:paid, date:new Date().toISOString(), pointsUsed });
+    saveSales();
+    currentSelectedClient.points=(currentSelectedClient.points||0)+pointsEarned;
+    saveClients();
+    updateStats();
+    if(selectedClientId===clientId) showClientDetails(clientId);
+    document.getElementById('discountAmount').value='0';
+    document.getElementById('paidAmountAtSale').value='0';
+    document.getElementById('clientSearchInput').value='';
+    document.getElementById('saleQuantity').value='1';
+    if(document.getElementById('applyLoyaltyDiscount')) document.getElementById('applyLoyaltyDiscount').checked=false;
+    document.getElementById('loyaltyCheckboxDiv').style.display='none';
+    const msg=document.getElementById('loyaltyMsg'); if(msg) msg.remove();
+    document.getElementById('bulkDiscountPreview').innerHTML='';
+    currentSelectedClient=null;
+    alert(`تم تسجيل البيع برقم فاتورة: ${invoice} (الكمية: ${qty})`);
+    renderTodaySales();
+}
+function renderTodaySales(){
+    const container = document.getElementById('todaySalesContent');
+    if(!container) return;
+    const today = new Date().toDateString();
+    const todaySales = sales.filter(s=> new Date(s.date).toDateString() === today).sort((a,b)=> new Date(b.date)-new Date(a.date));
+    if(!todaySales.length){ container.innerHTML='<p>لا توجد فواتير اليوم.</p>'; return; }
+    let html = `<table class="sales-table"><thead><tr><th>الفاتورة</th><th>العميل</th><th>الباقة</th><th>الكمية</th><th>السعر</th><th>المدفوع</th><th>المتبقي</th><th>إجراء</th></tr></thead><tbody>`;
+    todaySales.forEach(s=>{
+        const client = clients.find(c=>c.id===s.clientId);
+        const pkg = packages.find(p=>p.id===s.packageId);
+        const remaining = s.sellPrice - (s.paidAmount||0);
+        html += `<tr><td>${s.invoiceNumber}</td><td>${client?client.name:''}</td><td>${pkg?pkg.name:''}</td><td>${s.quantity||1}</td><td>${s.sellPrice}</td><td>${s.paidAmount||0}</td><td>${remaining}</td><td><button class="edit-btn" onclick="editSale(${s.id})"><i class="fas fa-edit"></i></button><button class="refund-btn" onclick="refundSale(${s.id})"><i class="fas fa-undo-alt"></i></button></td></tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+function editSale(saleId){
+    const sale=sales.find(s=>s.id===saleId);
+    if(!sale) return;
+    const newPaid=parseFloat(prompt('المبلغ المدفوع الجديد',sale.paidAmount));
+    if(!isNaN(newPaid)&&newPaid>=0&&newPaid<=sale.sellPrice){
+        sale.paidAmount=newPaid;
+        saveSales(); updateStats();
+        if(selectedClientId===sale.clientId) showClientDetails(selectedClientId);
+        renderTodaySales();
+        if(document.getElementById('invoicesPage') && !document.getElementById('invoicesPage').classList.contains('hidden')) filterInvoices(currentFilter);
+    } else alert('قيمة غير صالحة');
+}
+function refundSale(saleId){
+    if(!confirm('هل أنت متأكد من إرجاع هذه الفاتورة؟ سيتم استعادة النقاط والمخزون.')) return;
+    const sale=sales.find(s=>s.id===saleId);
+    if(!sale) return;
+    const client=clients.find(c=>c.id===sale.clientId);
+    if(!client){ alert('العميل غير موجود'); return; }
+    const pkg=packages.find(p=>p.id===sale.packageId);
+    const qty=sale.quantity||1;
+    if(pkg&&pkg.name==="سوبر باقه"){ superPackageStock+=qty; saveStock(); }
+    if(sale.pointsUsed>0) client.points+=sale.pointsUsed;
+    const pointsEarned=(pkg?.pointsGiven||1)*qty;
+    if(client.points>=pointsEarned) client.points-=pointsEarned;
+    else client.points=0;
+    saveClients();
+    sales=sales.filter(s=>s.id!==saleId);
+    saveSales();
+    updateStats();
+    renderTodaySales();
+    if(selectedClientId===sale.clientId) showClientDetails(selectedClientId);
+    if(document.getElementById('invoicesPage') && !document.getElementById('invoicesPage').classList.contains('hidden')) filterInvoices(currentFilter);
+    alert('تم إرجاع الفاتورة بنجاح');
+}
+
+// ========== صفحة الفواتير ==========
+let currentFilter = 'today';
+function filterInvoices(type) {
+    currentFilter = type;
+    const container = document.getElementById('invoicesList');
+    const statsDiv = document.getElementById('invoiceStats');
+    if(!container) return;
+    const now = new Date();
+    let start, end;
+    if(type === 'today') { start = new Date(now.getFullYear(), now.getMonth(), now.getDate()); end = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1); }
+    else if(type === 'yesterday') { const y = new Date(now); y.setDate(y.getDate()-1); start = new Date(y.getFullYear(), y.getMonth(), y.getDate()); end = new Date(y.getFullYear(), y.getMonth(), y.getDate()+1); }
+    else if(type === 'month') { start = new Date(now.getFullYear(), now.getMonth(), 1); end = new Date(now.getFullYear(), now.getMonth()+1, 1); }
+    else if(type === 'lastMonth') { start = new Date(now.getFullYear(), now.getMonth()-1, 1); end = new Date(now.getFullYear(), now.getMonth(), 1); }
+    else return;
+    renderInvoicesBetween(start, end);
+}
+function showCustomDateRange() {
+    document.getElementById('customDateRange').style.display = 'flex';
+}
+function applyCustomRange() {
+    const start = document.getElementById('startDate').value;
+    const end = document.getElementById('endDate').value;
+    if(!start || !end) { alert('اختر تاريخ البداية والنهاية'); return; }
+    renderInvoicesBetween(new Date(start), new Date(end+'T23:59:59'));
+}
+function renderInvoicesBetween(start, end) {
+    const filtered = sales.filter(s => { const d = new Date(s.date); return d >= start && d <= end; }).sort((a,b)=> new Date(b.date)-new Date(a.date));
+    const container = document.getElementById('invoicesList');
+    const statsDiv = document.getElementById('invoiceStats');
+    let totalSales = 0, totalProfit = 0;
+    filtered.forEach(s => { totalSales += s.sellPrice; const pkg = packages.find(p=>p.id===s.packageId); if(pkg) totalProfit += (s.sellPrice - pkg.buy); });
+    statsDiv.innerHTML = `<span><i class="fas fa-receipt"></i> عدد الفواتير: ${filtered.length}</span> <span><i class="fas fa-money-bill"></i> إجمالي المبيعات: ${totalSales.toFixed(2)} ج.م</span> <span><i class="fas fa-chart-line"></i> صافي الربح: ${totalProfit.toFixed(2)} ج.م</span>`;
+    if(!filtered.length){ container.innerHTML='<p>لا توجد فواتير في هذه الفترة.</p>'; return; }
+    let html = `<table class="sales-table"><thead><tr><th>الفاتورة</th><th>التاريخ</th><th>العميل</th><th>الباقة</th><th>الكمية</th><th>السعر</th><th>المدفوع</th><th>المتبقي</th><th>إجراء</th></tr></thead><tbody>`;
+    filtered.forEach(s=>{
+        const client = clients.find(c=>c.id===s.clientId);
+        const pkg = packages.find(p=>p.id===s.packageId);
+        const remaining = s.sellPrice - (s.paidAmount||0);
+        html += `<tr><td>${s.invoiceNumber}</td><td>${new Date(s.date).toLocaleDateString('ar-EG')}</td><td>${client?client.name:''}</td><td>${pkg?pkg.name:''}</td><td>${s.quantity||1}</td><td>${s.sellPrice}</td><td>${s.paidAmount||0}</td><td>${remaining}</td><td><button class="edit-btn" onclick="editSale(${s.id})"><i class="fas fa-edit"></i></button><button class="refund-btn" onclick="refundSale(${s.id})"><i class="fas fa-undo-alt"></i></button></td></tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+// ========== دوال المصروفات ==========
+function addExpense(){
+    const name=document.getElementById('expenseName').value.trim();
+    const amount=parseFloat(document.getElementById('expenseAmount').value);
+    const category=document.getElementById('expenseCategory').value;
+    if(!name||isNaN(amount)||amount<=0){ alert('أدخل اسم المصروف والمبلغ بشكل صحيح'); return; }
+    expenses.push({ id:Date.now(), name, amount, category, date:new Date().toISOString() });
+    saveExpenses(); renderExpenses(); updateStats();
+    document.getElementById('expenseName').value=''; document.getElementById('expenseAmount').value='';
+    alert('تم إضافة المصروف بنجاح');
+}
+function renderExpenses(){
+    const container=document.getElementById('expensesList');
+    if(!container) return;
+    if(!expenses.length){ container.innerHTML='<div class="card">لا توجد مصروفات</div>'; return; }
+    const sortedExpenses=[...expenses].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    let html='<div class="card"><h3>سجل المصروفات</h3><div style="overflow-x:auto;"><table class="sales-table"><thead><tr><th>التاريخ</th><th>الاسم</th><th>الفئة</th><th>المبلغ</th><th></th></tr></thead><tbody>';
+    sortedExpenses.forEach(e=>{
+        html+=`<tr><td>${new Date(e.date).toLocaleDateString('ar-EG')}</td><td>${e.name}</td><td>${e.category}</td><td>${e.amount} ج.م</td><td><button class="delete-expense-btn" onclick="deleteExpense(${e.id})"><i class="fas fa-trash"></i></button></td></tr>`;
+    });
+    html+='</tbody></table></div></div>';
+    container.innerHTML=html;
+}
+function deleteExpense(id){
+    if(confirm('هل تريد حذف هذا المصروف؟')){
+        expenses=expenses.filter(e=>e.id!==id);
+        saveExpenses(); renderExpenses(); updateStats();
+    }
+}
+// ========== دوال عامة ==========
+function showDebtsModal(){
+    let html=`<div class="modal" id="debtModal"><div class="modal-content"><h3><i class="fas fa-hand-holding-usd"></i> قائمة الديون</h3><hr>`;
+    let hasDebts=false;
+    clients.forEach(c=>{
+        const debt=getClientTotalDebt(c.id);
+        const debtLimit=c.debtLimit||globalDebtLimit;
+        if(debt>0){
+            hasDebts=true;
+            html+=`<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-color); cursor:pointer;" onclick="closeDebtModal(); showClientDetails(${c.id});">
+                <span><i class="fas fa-user"></i> ${c.name} ${c.phone?`(${c.phone})`:''}</span>
+                <span style="color:var(--debt-highlight); font-weight:bold;">${debt.toFixed(2)} / ${debtLimit} ج.م</span>
+            </div>`;
+        }
+    });
+    if(!hasDebts) html+=`<div style="padding:16px; text-align:center;">لا توجد ديون مستحقة</div>`;
+    html+=`<button onclick="closeDebtModal()" style="margin-top:20px;">إغلاق</button></div></div>`;
+    document.body.insertAdjacentHTML('beforeend',html);
+}
+function closeDebtModal(){ const modal=document.getElementById('debtModal'); if(modal) modal.remove(); }
+function showPage(pageId){
+    ['dashboard','clientsPage','clientDetailsPage','packagesPage','salesPage','expensesPage','invoicesPage'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+    document.getElementById(pageId).classList.remove('hidden');
+    document.querySelectorAll('.bottom-nav button').forEach(btn=>btn.classList.remove('active'));
+    if(pageId==='dashboard') document.getElementById('navDashboard').classList.add('active');
+    else if(pageId==='clientsPage'){ document.getElementById('navClients').classList.add('active'); renderClients(); setupClientSearchInClientsPage(); }
+    else if(pageId==='packagesPage'){ document.getElementById('navPackages').classList.add('active'); renderPackages(); updateStats(); }
+    else if(pageId==='salesPage'){ document.getElementById('navSales').classList.add('active'); populatePackageSelect(); renderTodaySales(); setupClientSearch(); updateBulkDiscountPreview(); }
+    else if(pageId==='expensesPage'){ document.getElementById('navExpenses').classList.add('active'); renderExpenses(); }
+    else if(pageId==='invoicesPage'){ document.getElementById('navInvoices').classList.add('active'); filterInvoices('today'); }
+    else if(pageId==='clientDetailsPage') document.getElementById('navClients').classList.add('active');
+}
+function loadAllDataAndRender(){
+    loadData();
+    renderClients(); renderPackages(); renderExpenses();
+    updateStats(); populatePackageSelect(); setupClientSearch(); updateBulkDiscountPreview();
+    showPage('dashboard');
+}
+function initTheme(){
+    const savedTheme=localStorage.getItem('theme');
+    if(savedTheme==='dark'){ document.body.classList.add('dark'); document.getElementById('themeToggle').innerHTML='<i class="fas fa-sun"></i>'; }
+    else{ document.body.classList.remove('dark'); document.getElementById('themeToggle').innerHTML='<i class="fas fa-moon"></i>'; }
+}
+function toggleTheme(){
+    if(document.body.classList.contains('dark')){
+        document.body.classList.remove('dark'); localStorage.setItem('theme','light');
+        document.getElementById('themeToggle').innerHTML='<i class="fas fa-moon"></i>';
+    } else {
+        document.body.classList.add('dark'); localStorage.setItem('theme','dark');
+        document.getElementById('themeToggle').innerHTML='<i class="fas fa-sun"></i>';
+    }
+}
+document.getElementById('settingsBtn').addEventListener('click',showSettingsModal);
+document.getElementById('logoutBtn').addEventListener('click',logout);
+document.getElementById('themeToggle').addEventListener('click',toggleTheme);
+loadAuth();
+initTheme();
+checkLogin();
+</script>
+</body>
+</html>
